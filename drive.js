@@ -4,18 +4,18 @@ const {google} = require('googleapis');
 
 // If modifying these scopes, delete token.json.
 process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
-const SCOPES = ['https://www.googleapis.com/auth/drive.readonly', 'https://www.googleapis.com/auth/drive.metadata.readonly'];
+const SCOPES = ['https://www.googleapis.com/auth/drive'];
 // The file token.json stores the user's access and refresh tokens, and is
 // created automatically when the authorization flow completes for the first
 // time.
 const TOKEN_PATH = 'token.json';
 
 // Load client secrets from a local file.
-fs.readFile('credentials.json', (err, content) => {
-  if (err) return console.log('Error loading client secret file:', err);
-  // Authorize a client with credentials, then call the Google Drive API.
-  authorize(JSON.parse(content), getFilesInFolder);
-});
+// fs.readFile('credentials.json', (err, content) => {
+//   if (err) return console.log('Error loading client secret file:', err);
+//   // Authorize a client with credentials, then call the Google Drive API.
+//   authorize(JSON.parse(content), getFilesInFolder);
+// });
 
 /**
  * Create an OAuth2 client with the given credentials, and then execute the
@@ -90,6 +90,11 @@ function listFiles(auth) {
   });
 }
 
+
+/////// CODE THAT I HAVE WRITTEN ////////
+
+
+// ReAuthorises the user for when bot.js calls drive module.
 function reAuthorise(){
 	fs.readFile('credentials.json', (err, content) => {
   if (err) return console.log('Error loading client secret file:', err);
@@ -100,6 +105,7 @@ function reAuthorise(){
 
 const fileFolderIds = require("./fileFolderIds.json");
 
+//
 function getFilesInFolder(auth) {
 	const drive = google.drive({version: 'v3', auth});
 	drive.files.list({
@@ -113,21 +119,25 @@ function getFilesInFolder(auth) {
       files.map((file) => {
       });
       var image = files[Math.floor(Math.random() * files.length)];
-      console.log(image.name);
 
       getImage(image, drive, auth);
     } else {
-      console.log('No files found.');
+      console.log('No files found. Checking Used Folder');
+      moveImagesToFolder(drive, auth);
     }
   });
 
 }
 
+//
 function getImage(image, drive){
-	var dest = fs.createWriteStream('/tempImages');
+	var dest = fs.createWriteStream('./tempImages/' + image.name);
 
     drive.files.get({fileId: image.id, alt: 'media'}, {responseType: 'stream'},
 	function(err, res){
+		if(err){
+			console.log(err);
+		}
    		res.data
    	.on('end', () => {
      console.log('Done ');
@@ -136,7 +146,46 @@ function getImage(image, drive){
       console.log('Error', err);
    })
    .pipe(dest);
-})
+      console.log('piper is gonna pipe');
+  })
+  drive.files.update({
+    fileId: image.id,
+    addParents: fileFolderIds.usedImages,
+    removeParents: fileFolderIds.unusedImages,
+    fields: 'id, parents'
+  }, function (err, file) {
+    if(err) {
+      console.log('Error Thrown when Move File after Download! : ' + err);
+    }
+  });
+}
+
+function moveImagesToFolder(drive, auth){
+  drive.files.list({
+    q: "'" + fileFolderIds.usedImages +"' in parents"
+  }, (err, res) => {
+    if (err) return console.log('The API returned an error: ' + err);
+    const files = res.data.files;
+
+    if (files.length) {
+      //Moves files from Used Folder back to UnUsedFolder
+      files.map((file) => {
+        drive.files.update({
+          fileId: file.id,
+          addParents: fileFolderIds.unusedImages,
+          removeParents: fileFolderIds.usedImages,
+          fields: 'id, parents'
+        }, function (err, file) {
+          if(err) {
+            console.log('Error Thrown when Moving Files: ' + err);
+          }
+        });
+      });
+      getFilesInFolder(auth);
+    } else {
+      console.log('No files found in usedImages either! Checking Used Folder');
+    }
+  });
 }
 
 
