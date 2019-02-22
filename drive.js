@@ -139,7 +139,7 @@ function getImage(image, drive){
 			console.log(err);
 		}
    		res.data
-   	.on('end', () => {
+   	.on('finish', () => {
      console.log('Done ');
    })
    .on('error', err => {

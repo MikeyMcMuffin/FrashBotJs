@@ -7,8 +7,8 @@ const fs = require('fs') , gm = require('gm');
 var T = new twit(config);
 
 var rule = new schedule.RecurrenceRule();
-rule.hour = 12;
-rule.minute = 11;
+rule.hour = 13;
+rule.minute = 33;
 
 var j = schedule.scheduleJob(rule, function(){
 	postImage();
@@ -81,13 +81,15 @@ function getFilePath(dir ,timeout){
 				console.log('In here');
 				filepath = filename
 				console.log('resolving getFilePath as ' + filepath);
-				gm(filename).identify((err,data)){
+				gm(filename).identify(function(err,data){
 					if(!err){
+						console.log(data);
+						console.log(data.bytes);
 						resolve(filepath);
 					}else{
 						getFilePath(dir, timeout);
 					}
-				}
+				});
 			});
         	}
     	});
