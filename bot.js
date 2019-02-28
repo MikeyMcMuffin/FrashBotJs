@@ -7,8 +7,8 @@ const fs = require('fs') , gm = require('gm');
 var T = new twit(config);
 
 var rule = new schedule.RecurrenceRule();
-rule.hour = 13;
-rule.minute = 33;
+rule.hour = 16;
+rule.minute = 41;
 
 var j = schedule.scheduleJob(rule, function(){
 	postImage();
@@ -16,7 +16,7 @@ var j = schedule.scheduleJob(rule, function(){
 
 async function postImage() {
 	//Calls the getImgage function from drive.js
-	drive.getImage();
+	await drive.getImage();
 
 	var filepath = await getFilePath('tempImages/', 50000);
 	var fileFound = false;

@@ -131,32 +131,38 @@ function getFilesInFolder(auth) {
 
 //
 function getImage(image, drive){
-	var dest = fs.createWriteStream('./tempImages/' + image.name);
+  return new Promise(function (resolve, reject) {
+  	var dest = fs.createWriteStream('./tempImages/' + image.name);
+
+    var filesize = 0;
 
     drive.files.get({fileId: image.id, alt: 'media'}, {responseType: 'stream'},
-	function(err, res){
-		if(err){
-			console.log(err);
-		}
-   		res.data
-   	.on('finish', () => {
-     console.log('Done ');
-   })
-   .on('error', err => {
-      console.log('Error', err);
-   })
-   .pipe(dest);
-      console.log('piper is gonna pipe');
-  })
-  drive.files.update({
-    fileId: image.id,
-    addParents: fileFolderIds.usedImages,
-    removeParents: fileFolderIds.unusedImages,
-    fields: 'id, parents'
-  }, function (err, file) {
-    if(err) {
-      console.log('Error Thrown when Move File after Download! : ' + err);
-    }
+  	function(err, res){
+  		if(err){
+  			console.log(err);
+  		}
+      console.log(res.data);
+     		res.data
+     	.on('finish', () => {
+       console.log('Done ');
+     })
+     .on('error', err => {
+        console.log('Error', err);
+     })
+     .pipe(dest);
+        console.log('piper is gonna pipe');
+        resolve();
+    })
+    drive.files.update({
+      fileId: image.id,
+      addParents: fileFolderIds.usedImages,
+      removeParents: fileFolderIds.unusedImages,
+      fields: 'id, parents'
+    }, function (err, file) {
+      if(err) {
+        console.log('Error Thrown when Move File after Download! : ' + err);
+      }
+    });
   });
 }
 
