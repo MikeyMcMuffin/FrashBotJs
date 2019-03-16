@@ -1,3 +1,7 @@
+/* eslint-disable no-mixed-spaces-and-tabs */
+/* eslint-disable no-unused-vars */
+/* eslint-disable no-undef */
+/* eslint-disable no-console */
 const fs = require('fs');
 const readline = require('readline');
 const {google} = require('googleapis');
@@ -116,8 +120,6 @@ function getFilesInFolder(auth) {
 
     if (files.length) {
       console.log('Files:');
-      files.map((file) => {
-      });
       var image = files[Math.floor(Math.random() * files.length)];
 
       getImage(image, drive, auth);

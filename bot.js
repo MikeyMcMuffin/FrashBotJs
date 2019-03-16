@@ -1,3 +1,6 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable no-mixed-spaces-and-tabs */
+/* eslint-disable no-console */
 var twit = require('twit');
 var config = require('./config.js');
 const schedule = require('node-schedule');
@@ -7,8 +10,8 @@ const fs = require('fs') , gm = require('gm');
 var T = new twit(config);
 
 var rule = new schedule.RecurrenceRule();
-rule.hour = 16;
-rule.minute = 41;
+rule.hour = ;
+rule.minute = 58;
 
 var j = schedule.scheduleJob(rule, function(){
 	postImage();
@@ -52,48 +55,63 @@ async function postImage() {
 				console.log('error: ' + err);
 			}
 		})
+
+		console.log('Posting complete waiting for next scheduled Post.');
 	})
 
 	fs.unlinkSync('./' + filepath);
 }
 
-function getFilePath(dir ,timeout){
-	return new Promise(function (resolve, reject) {
-		var filepath;
-        var timer = setTimeout(function () {
-            watcher.close();
-            reject(new Error('File did not exists and was not created during the timeout.'));
-        }, timeout);
 
-        // fs.access(dir, fs.constants.R_OK, function (err) {
-        //     if (!err) {
-        //         clearTimeout(timer);
-        //         watcher.close();
-        //         resolve();
-        //     }
-        // });
-
-        var watcher = fs.watch(dir, function (eventType, filename) {
-            if (eventType === 'rename') {
-                clearTimeout(timer);
-                watcher.close();
+function getFilePath(dir, timeout){
+	var filepath;
+	return new Promise(resolve=>{
+		setTimeout(function(){
 			fs.readdirSync(dir).forEach(filename =>{
 				console.log('In here');
-				filepath = filename
-				console.log('resolving getFilePath as ' + filepath);
-				gm(filename).identify(function(err,data){
-					if(!err){
-						console.log(data);
-						console.log(data.bytes);
-						resolve(filepath);
-					}else{
-						getFilePath(dir, timeout);
-					}
-				});
+			   filepath = filename
 			});
-        	}
-    	});
-    });
+			resolve(filepath);
+		},timeout);
+	});
 }
+// function getFilePath(dir ,timeout){
+// 	return new Promise(function (resolve, reject) {
+// 		var filepath;
+//         var timer = setTimeout(function () {
+//             watcher.close();
+//             reject(new Error('File did not exists and was not created during the timeout.'));
+//         }, timeout);
+
+//         // fs.access(dir, fs.constants.R_OK, function (err) {
+//         //     if (!err) {
+//         //         clearTimeout(timer);
+//         //         watcher.close();
+//         //         resolve();
+//         //     }
+//         // });
+
+//         var watcher = fs.watch(dir, function (eventType, filename) {
+//             if (eventType === 'rename') {
+//                 clearTimeout(timer);
+//                 watcher.close();
+// 			fs.readdirSync(dir).forEach(filename =>{
+// 				console.log('In here');
+// 				filepath = filename
+// 				console.log('resolving getFilePath as ' + filepath);
+// 				gm(filename).identify(function(err,data){
+// 					if(!err){
+// 						console.log(data);
+// 						console.log(data.bytes);
+// 						resolve(filepath);
+// 					}else{
+// 						getFilePath(dir, timeout);
+// 					}
+// 				});
+// 			});
+//         	}
+//     	});
+//     });
+// }
 
 
