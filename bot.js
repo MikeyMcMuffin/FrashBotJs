@@ -10,8 +10,8 @@ const fs = require('fs') , gm = require('gm');
 var T = new twit(config);
 
 var rule = new schedule.RecurrenceRule();
-rule.hour = ;
-rule.minute = 58;
+rule.hour = 17;
+rule.minute = 0;
 
 var j = schedule.scheduleJob(rule, function(){
 	postImage();
